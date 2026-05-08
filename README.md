@@ -6,9 +6,9 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Vue.js](https://img.shields.io/badge/Vue.js-3.4-brightgreen.svg)](https://vuejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/nplszfl/erp?style=flat)](https://github.com/nplszfl/erp/stargazers)
-[![Forks](https://img.shields.io/github/forks/nplszfl/erp?style=flat)](https://github.com/nplszfl/erp/network)
-[![Last Commit](https://img.shields.io/github/last-commit/nplszfl/erp/main)](https://github.com/nplszfl/erp/commits/main)
+[![Stars](https://img.shields.io/github/stars/nplszfl/OmniTradeERP?style=flat)](https://github.com/nplszfl/OmniTradeERP/stargazers)
+[![Forks](https://img.shields.io/github/forks/nplszfl/OmniTradeERP?style=flat)](https://github.com/nplszfl/OmniTradeERP/network)
+[![Last Commit](https://img.shields.io/github/last-commit/nplszfl/OmniTradeERP/main)](https://github.com/nplszfl/OmniTradeERP/commits/main)
 
 </div>
 
@@ -189,7 +189,7 @@ public class LLMConfig {
 
 ```bash
 # 克隆项目
-git clone https://github.com/nplszfl/erp.git
+git clone https://github.com/nplszfl/OmniTradeERP.git
 cd OmniTradeERP
 
 # 一键启动（最简模式，仅需4G内存）
@@ -275,7 +275,7 @@ OmniTradeERP/
 ```bash
 # 1. Star ⭐ 支持我们
 # 2. Fork 项目
-git clone https://github.com/nplszfl/erp.git
+git clone https://github.com/nplszfl/OmniTradeERP.git
 
 # 3. 创建特性分支
 git checkout -b feature/your-awesome-feature
@@ -329,8 +329,8 @@ A: GitHub提Issue，或加微信群（见下方）。
 
 | 方式 | 链接 |
 |------|------|
-| ⭐ GitHub Star | [点我Star](https://github.com/nplszfl/erp) |
-| 🐛 问题反馈 | [GitHub Issues](https://github.com/nplszfl/erp/issues) |
+| ⭐ GitHub Star | [点我Star](https://github.com/nplszfl/OmniTradeERP) |
+| 🐛 问题反馈 | [GitHub Issues](https://github.com/nplszfl/OmniTradeERP/issues) |
 | 📖 在线文档 | [docs.omnitradeerp.com](https://docs.omnitradeerp.com) |
 
 ---
