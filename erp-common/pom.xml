@@ -13,7 +13,7 @@
 
     <artifactId>erp-common</artifactId>
     <packaging>jar</packaging>
-    <name>ERP Common Module</name>
+    <name>OmniTrade ERP - Common Module</name>
 
     <dependencies>
         <!-- Web基础 -->

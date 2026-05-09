@@ -13,7 +13,7 @@
 
     <artifactId>erp-platform-api</artifactId>
     <packaging>jar</packaging>
-    <name>ERP Platform API Module</name>
+    <name>OmniTrade ERP - Platform API Module</name>
 
     <dependencies>
         <dependency>

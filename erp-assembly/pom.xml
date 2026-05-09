@@ -13,7 +13,7 @@
 
     <artifactId>erp-assembly</artifactId>
     <packaging>jar</packaging>
-    <name>ERP Assembly</name>
+    <name>OmniTrade ERP - Assembly</name>
 
     <dependencies>
         <dependency>

@@ -13,7 +13,7 @@
 
     <artifactId>erp-platform-service</artifactId>
     <packaging>jar</packaging>
-    <name>ERP Platform Service</name>
+    <name>OmniTrade ERP - Platform Service</name>
 
     <dependencies>
         <!-- Web -->

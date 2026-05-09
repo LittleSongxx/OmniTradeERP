@@ -17,7 +17,7 @@
     <version>1.5.0</version>
     <packaging>jar</packaging>
 
-    <name>ERP AI Assistant Service</name>
+    <name>OmniTrade ERP - AI Assistant Service</name>
     <description>AI智能客服系统 - 基于LLM的智能问答助手</description>
 
     <properties>

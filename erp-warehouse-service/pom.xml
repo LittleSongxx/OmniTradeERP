@@ -13,7 +13,7 @@
 
     <artifactId>erp-warehouse-service</artifactId>
     <packaging>jar</packaging>
-    <name>ERP Warehouse Service</name>
+    <name>OmniTrade ERP - Warehouse Service</name>
 
     <dependencies>
         <dependency>

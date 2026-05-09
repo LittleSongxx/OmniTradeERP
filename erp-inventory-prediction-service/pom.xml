@@ -16,7 +16,7 @@
     <version>1.5.0</version>
     <packaging>jar</packaging>
 
-    <name>ERP Inventory Prediction Service</name>
+    <name>OmniTrade ERP - Inventory Prediction Service</name>
     <description>库存预测服务 - AI驱动的销售预测和补货建议</description>
 
     <properties>

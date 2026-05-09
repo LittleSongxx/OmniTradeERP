@@ -13,7 +13,7 @@
 
     <artifactId>erp-inventory-service</artifactId>
     <packaging>jar</packaging>
-    <name>ERP Inventory Service</name>
+    <name>OmniTrade ERP - Inventory Service</name>
 
     <dependencies>
         <dependency>

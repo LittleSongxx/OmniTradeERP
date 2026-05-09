@@ -13,7 +13,7 @@
 
     <artifactId>erp-finance-service</artifactId>
     <packaging>jar</packaging>
-    <name>ERP Finance Service</name>
+    <name>OmniTrade ERP - Finance Service</name>
 
     <dependencies>
         <dependency>

@@ -13,7 +13,7 @@
 
     <artifactId>erp-product-service</artifactId>
     <packaging>jar</packaging>
-    <name>ERP Product Service</name>
+    <name>OmniTrade ERP - Product Service</name>
 
     <dependencies>
         <dependency>

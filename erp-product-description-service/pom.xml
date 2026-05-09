@@ -17,7 +17,7 @@
     <version>1.5.0</version>
     <packaging>jar</packaging>
 
-    <name>ERP Product Description Service</name>
+    <name>OmniTrade ERP - Product Description Service</name>
     <description>产品描述生成服务 - AI驱动的多语言描述生成</description>
 
     <properties>

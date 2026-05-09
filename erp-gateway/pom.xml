@@ -13,7 +13,7 @@
 
     <artifactId>erp-gateway</artifactId>
     <packaging>jar</packaging>
-    <name>ERP Gateway Service</name>
+    <name>OmniTrade ERP - Gateway Service</name>
 
     <dependencies>
         <!-- Gateway -->

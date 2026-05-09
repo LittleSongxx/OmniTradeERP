@@ -13,7 +13,7 @@
 
     <artifactId>erp-order-service</artifactId>
     <packaging>jar</packaging>
-    <name>ERP Order Service</name>
+    <name>OmniTrade ERP - Order Service</name>
 
     <dependencies>
         <!-- Web -->

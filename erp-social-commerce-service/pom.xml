@@ -12,7 +12,7 @@
 
     <artifactId>erp-social-commerce-service</artifactId>
     <packaging>jar</packaging>
-    <name>ERP Social Commerce Service</name>
+    <name>OmniTrade ERP - Social Commerce Service</name>
     <description>社交电商整合服务 - TikTok Shop, 直播带货, 达人合作, 抖音电商</description>
 
     <dependencies>
