@@ -4,8 +4,8 @@ import com.crossborder.erp.order.entity.Order;
 import com.crossborder.erp.order.entity.OrderItem;
 import com.crossborder.erp.platform.api.PlatformOrderSync;
 import com.crossborder.erp.platform.entity.PlatformConfig;
+import com.crossborder.erp.platform.feign.OrderServiceClient;
 import com.crossborder.erp.platform.service.PlatformConfigService;
-import com.crossborder.erp.order.service.OrderService;
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class OrderSyncSchedule {
 
     private final PlatformConfigService platformConfigService;
     private final Map<String, PlatformOrderSync> platformSyncMap;
-    private final OrderService orderService;
+    private final OrderServiceClient orderServiceClient;
 
     /**
      * 获取所有平台的同步实现（包含过滤后的bean）
@@ -122,14 +122,14 @@ public class OrderSyncSchedule {
     private void saveOrderToOrderService(Order order, List<OrderItem> items) {
         try {
             // 检查订单是否已存在
-            Order existingOrder = orderService.getOrderByPlatformOrderNo(order.getPlatform(), order.getPlatformOrderNo());
+            Order existingOrder = orderServiceClient.getOrderByPlatformOrderNo(order.getPlatform(), order.getPlatformOrderNo());
             if (existingOrder != null) {
                 log.info("订单已存在，跳过: {}", order.getPlatformOrderNo());
                 return;
             }
             
             // 调用订单服务保存订单
-            Long orderId = orderService.createOrder(order, items);
+            Long orderId = orderServiceClient.createOrder(new OrderServiceClient.OrderCreateRequest(order, items));
             log.info("订单保存成功: platformOrderNo={}, orderId={}", order.getPlatformOrderNo(), orderId);
         } catch (Exception e) {
             log.error("保存订单失败: {}", order.getPlatformOrderNo(), e);
