@@ -1,0 +1,67 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: erp-ai-assistant-service
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 2
+      timeout: 3000
+
+# Swagger配置
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+# LLM API配置（统一配置，支持DeepSeek/OpenAI/Azure）
+llm:
+  # 是否启用真实API调用（配置API Key后设为true）
+  enabled: ${LLM_ENABLED:false}
+  # API Key（支持环境变量：LLM_API_KEY / DEEPSEEK_API_KEY / OPENAI_API_KEY）
+  api-key: ${LLM_API_KEY:${DEEPSEEK_API_KEY:${OPENAI_API_KEY:}}}
+  # API Base URL
+  base-url: ${LLM_BASE_URL:https://api.deepseek.com/v1}
+  # 模型名称
+  model: ${LLM_MODEL:deepseek-chat}
+  # 请求超时（毫秒）
+  timeout: ${LLM_TIMEOUT:30000}
+  # 最大Token数
+  max-tokens: ${LLM_MAX_TOKENS:2000}
+  # Temperature
+  temperature: ${LLM_TEMPERATURE:0.7}
+  # Provider: deepseek, openai, azure
+  provider: ${LLM_PROVIDER:deepseek}
+
+# RAG配置
+rag:
+  enabled: true
+  vector-db:
+    type: redis  # redis, milvus, pinecone
+    dimension: 1536
+  retrieval:
+    top-k: 3
+    similarity-threshold: 0.7
+
+# 知识库配置
+knowledge:
+  refresh-interval: 3600  # 秒
+  default-language: zh
+  categories:
+    - 订单
+    - 物流
+    - 产品
+    - 售后
+    - 价格
+    - 库存
+
+# 应用配置
+app:
+  name: AI智能客服服务
+  version: 1.5.0
+  author: 火球鼠
