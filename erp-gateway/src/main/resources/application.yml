@@ -28,24 +28,30 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
+        - id: auth-service
+          uri: lb://erp-user-service
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
         - id: order-service
           uri: lb://erp-order-service
           predicates:
             - Path=/api/order/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=1
         - id: product-service
           uri: lb://erp-product-service
           predicates:
             - Path=/api/product/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=1
         - id: platform-service
           uri: lb://erp-platform-service
           predicates:
             - Path=/api/platform/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=1
 
 management:
   endpoints:
@@ -56,3 +62,4 @@ management:
 logging:
   level:
     org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.loadbalancer: DEBUG

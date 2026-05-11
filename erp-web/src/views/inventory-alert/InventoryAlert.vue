@@ -437,8 +437,9 @@ const loadRules = async () => {
       warehouseId: ruleSearchForm.warehouseId || undefined,
       enabled: ruleSearchForm.enabled
     })
-    ruleList.value = res.records || []
-    rulePagination.total = res.total || 0
+    const pageData = res.data || {}
+    ruleList.value = pageData.records || []
+    rulePagination.total = pageData.total || 0
   } catch (error) {
     console.error('加载规则失败', error)
   } finally {
@@ -457,8 +458,9 @@ const loadAlerts = async () => {
       alertType: alertSearchForm.alertType || undefined,
       status: alertSearchForm.status || undefined
     })
-    alertList.value = res.records || []
-    alertPagination.total = res.total || 0
+    const pageData = res.data || {}
+    alertList.value = pageData.records || []
+    alertPagination.total = pageData.total || 0
   } catch (error) {
     console.error('加载预警记录失败', error)
   } finally {
@@ -476,8 +478,9 @@ const loadReplenishments = async () => {
       warehouseId: replenishSearchForm.warehouseId || undefined,
       status: replenishSearchForm.status || undefined
     })
-    replenishmentList.value = res.records || []
-    replenishPagination.total = res.total || 0
+    const pageData = res.data || {}
+    replenishmentList.value = pageData.records || []
+    replenishPagination.total = pageData.total || 0
   } catch (error) {
     console.error('加载补货建议失败', error)
   } finally {

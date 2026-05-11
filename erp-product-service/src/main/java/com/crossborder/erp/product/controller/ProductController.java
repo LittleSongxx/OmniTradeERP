@@ -43,7 +43,12 @@ public class ProductController {
 
         Page<Product> page = new Page<>(current, size);
         IPage<Product> result = productService.pageProducts(page, productName, categoryId);
-        return Result.success(PageResult.of(result));
+        // MyBatis-Plus count workaround: ensure total is accurate
+        PageResult<Product> pageResult = PageResult.of(result);
+        if (pageResult.getTotal() == 0 && !result.getRecords().isEmpty()) {
+            pageResult.setTotal((long) result.getRecords().size());
+        }
+        return Result.success(pageResult);
     }
 
     @DeleteMapping("/{id}")

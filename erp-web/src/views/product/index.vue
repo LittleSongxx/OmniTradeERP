@@ -233,8 +233,27 @@ const loadProducts = async () => {
       ...filterForm
     }
     const res = await productApi.getProducts(params)
-    productList.value = res.records
-    pagination.total = res.total
+    // 映射后端字段 → 前端字段
+    const pageData = res.data || {}
+    productList.value = (pageData.records || []).map((item: any) => ({
+      id: item.id,
+      internalSku: item.sku || '',
+      productName: item.name || '',
+      brand: item.brand || '',
+      category: item.categoryId || '',
+      mainImage: item.mainImage || '',
+      images: item.images ? JSON.parse(item.images) : [],
+      description: item.description || '',
+      weight: item.weight || 0,
+      dimensions: item.length && item.width && item.height ? `${item.length}x${item.width}x${item.height}` : '',
+      costPrice: item.costPrice || 0,
+      salePrice: item.salePrice || 0,
+      currencyCode: 'CNY',
+      status: item.status ?? 1,
+      createTime: item.createTime || '',
+      updateTime: item.updateTime || ''
+    }))
+    pagination.total = pageData.total || (pageData.records || []).length
   } catch (error) {
     console.error('加载商品列表失败:', error)
   } finally {

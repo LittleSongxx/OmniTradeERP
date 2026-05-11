@@ -420,8 +420,9 @@ const loadUsers = async () => {
       ...userFilterForm
     }
     const res = await userApi.getUsers(params)
-    userList.value = res.records || []
-    userPagination.total = res.total || 0
+    const pageData = res.data || {}
+    userList.value = pageData.records || []
+    userPagination.total = pageData.total || 0
   } catch (error) {
     console.error('加载用户列表失败:', error)
   } finally {
@@ -444,7 +445,8 @@ const loadRoles = async () => {
   roleLoading.value = true
   try {
     const res = await roleApi.getRoleList({ current: 1, size: 100 })
-    roleList.value = res.records || []
+    const pageData = res.data || {}
+    roleList.value = pageData.records || []
   } catch (error) {
     console.error('加载角色列表失败:', error)
   } finally {

@@ -443,8 +443,9 @@ const loadFlows = async () => {
       endDate: filterForm.dateRange?.[1]
     }
     const res = await financeFlowApi.getFlows(params)
-    flowList.value = res.records || []
-    pagination.total = res.total || 0
+    const pageData = res.data || {}
+    flowList.value = pageData.records || []
+    pagination.total = pageData.total || 0
   } catch (error) {
     console.error('加载流水列表失败:', error)
   } finally {

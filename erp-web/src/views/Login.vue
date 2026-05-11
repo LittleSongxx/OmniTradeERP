@@ -39,6 +39,16 @@
             登录
           </el-button>
         </el-form-item>
+        <el-form-item>
+          <el-button
+            text
+            size="large"
+            style="width: 100%"
+            @click="router.push('/register')"
+          >
+            没有账号？立即注册
+          </el-button>
+        </el-form-item>
       </el-form>
     </div>
   </div>
@@ -70,7 +80,7 @@ const handleLogin = async () => {
     loading.value = true
 
     const res = await axios.post('/api/auth/login', loginForm)
-    const { token, userInfo } = res.data
+    const { token, userInfo } = res.data.data
 
     localStorage.setItem('token', token)
     localStorage.setItem('userInfo', JSON.stringify(userInfo))

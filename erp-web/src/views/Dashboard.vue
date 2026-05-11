@@ -124,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import { ShoppingCart, Money, Box, Warning } from '@element-plus/icons-vue'

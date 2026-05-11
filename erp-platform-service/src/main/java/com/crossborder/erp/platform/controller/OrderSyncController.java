@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
  * 订单同步Controller
  */
 @RestController
-@RequestMapping("/platform/sync")
+@RequestMapping("/order-sync")
 @RequiredArgsConstructor
 public class OrderSyncController {
 

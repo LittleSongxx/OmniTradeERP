@@ -440,8 +440,9 @@ const loadOrders = async () => {
     searchForm.size = pagination.size
     
     const res = await orderApi.advancedQuery(searchForm)
-    orderList.value = res.records || []
-    pagination.total = res.total || 0
+    const pageData = res.data || {}
+    orderList.value = pageData.records || []
+    pagination.total = pageData.total || 0
   } catch (error) {
     console.error('加载订单失败', error)
   } finally {

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.crossborder.erp.user.dto.LoginRequest;
 import com.crossborder.erp.user.dto.LoginResponse;
+import com.crossborder.erp.user.dto.RegisterRequest;
 import com.crossborder.erp.user.entity.User;
 import com.crossborder.erp.user.mapper.UserMapper;
 import com.crossborder.erp.user.service.AuthService;
@@ -98,6 +99,26 @@ public class AuthServiceImpl extends ServiceImpl<UserMapper, User> implements Au
             redisTemplate.delete(redisKey);
             log.info("用户登出: userId={}", userId);
         }
+    }
+
+    @Override
+    public void register(RegisterRequest request) {
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getUsername, request.getUsername());
+        if (getOne(wrapper) != null) {
+            throw new RuntimeException("用户名已存在");
+        }
+
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setRealName(request.getRealName());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setStatus(1);
+        user.setCreateTime(LocalDateTime.now());
+        user.setUpdateTime(LocalDateTime.now());
+
+        save(user);
+        log.info("用户注册成功: {}", user.getUsername());
     }
 
     @Override

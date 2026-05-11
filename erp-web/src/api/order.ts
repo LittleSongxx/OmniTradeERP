@@ -107,11 +107,11 @@ export const orderApi = {
     size: number
     platform?: string
     status?: string
-  }) => request.get<any, PageResult<Order>>('/order/order/list', { params }),
+  }) => request.get<any, PageResult<Order>>('/order/list', { params }),
 
   // 高级分页查询订单
   advancedQuery: (data: OrderQueryRequest) => 
-    request.post<any, PageResult<Order>>('/order/order/advanced/list', data),
+    request.post<any, PageResult<Order>>('/order/advanced/list', data),
 
   // 获取订单详情
   getOrder: (orderId: number) => request.get<any, Order>(`/order/order/${orderId}`),
