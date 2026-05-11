@@ -52,6 +52,42 @@ spring:
             - Path=/api/platform/**
           filters:
             - StripPrefix=1
+        - id: supplier-service
+          uri: lb://erp-supplier-service
+          predicates:
+            - Path=/api/supplier/**
+          filters:
+            - StripPrefix=1
+        - id: customer-service
+          uri: lb://erp-customer-service
+          predicates:
+            - Path=/api/customer/**
+          filters:
+            - StripPrefix=1
+        - id: warehouse-service
+          uri: lb://erp-warehouse-service
+          predicates:
+            - Path=/api/warehouse/**
+          filters:
+            - StripPrefix=1
+        - id: inventory-service
+          uri: lb://erp-inventory-service
+          predicates:
+            - Path=/api/inventory/**
+          filters:
+            - StripPrefix=1
+        - id: finance-service
+          uri: lb://erp-finance-service
+          predicates:
+            - Path=/api/finance/**
+          filters:
+            - StripPrefix=1
+        - id: logistics-service
+          uri: lb://erp-logistics-service
+          predicates:
+            - Path=/api/logistics/**
+          filters:
+            - StripPrefix=1
 
 management:
   endpoints:

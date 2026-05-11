@@ -99,11 +99,11 @@ export const supplierApi = {
   
   // 创建供应商
   createSupplier: (data: Supplier) => 
-    request.post<any, number>('/supplier/supplier/create', data),
+    request.post<any, number>('/supplier/create', data),
 
   // 获取供应商详情
   getSupplierById: (id: number) => 
-    request.get<any, Supplier>(`/supplier/supplier/${id}`),
+    request.get<any, Supplier>(`/supplier/${id}`),
 
   // 分页查询供应商
   getSupplierList: (params: {
@@ -114,29 +114,29 @@ export const supplierApi = {
     level?: string
     country?: string
     status?: string
-  }) => request.get<any, PageResult<Supplier>>('/supplier/supplier/list', { params }),
+  }) => request.get<any, PageResult<Supplier>>('/supplier/list', { params }),
 
   // 获取供应商统计
   getSupplierStats: () => 
-    request.get<any, SupplierStats>('/supplier/supplier/stats'),
+    request.get<any, SupplierStats>('/supplier/stats'),
 
   // 更新供应商
   updateSupplier: (id: number, data: Supplier) => 
-    request.put<any, void>(`/supplier/supplier/${id}`, data),
+    request.put<any, void>(`/supplier/${id}`, data),
 
   // 删除供应商
   deleteSupplier: (id: number) => 
-    request.delete<any, void>(`/supplier/supplier/${id}`),
+    request.delete<any, void>(`/supplier/${id}`),
 
   // ========== 采购订单管理 ==========
 
   // 创建采购订单
   createPurchaseOrder: (data: PurchaseOrder) => 
-    request.post<any, number>('/supplier/purchase-order/create', data),
+    request.post<any, number>('/supplier/purchase/create', data),
 
   // 获取采购订单详情
   getPurchaseOrderById: (id: number) => 
-    request.get<any, PurchaseOrder>(`/supplier/purchase-order/${id}`),
+    request.get<any, PurchaseOrder>(`/supplier/purchase/${id}`),
 
   // 分页查询采购订单
   getPurchaseOrderList: (params: {
@@ -145,21 +145,21 @@ export const supplierApi = {
     supplierId?: number
     status?: string
     paymentStatus?: string
-  }) => request.get<any, PageResult<PurchaseOrder>>('/supplier/purchase-order/list', { params }),
+  }) => request.get<any, PageResult<PurchaseOrder>>('/supplier/purchase/list', { params }),
 
   // 更新采购订单状态
   updatePurchaseOrderStatus: (id: number, status: string) => 
-    request.put<any, void>(`/supplier/purchase-order/${id}/status`, null, { params: { status } }),
+    request.put<any, void>(`/supplier/purchase/${id}/status`, null, { params: { status } }),
 
   // 删除采购订单
   deletePurchaseOrder: (id: number) => 
-    request.delete<any, void>(`/supplier/purchase-order/${id}`),
+    request.delete<any, void>(`/supplier/purchase/${id}`),
 
   // ========== 供应商绩效评估 ==========
 
   // 获取供应商绩效评估列表
   getEvaluationList: (supplierId: number) => 
-    request.get<any, SupplierEvaluation[]>(`/supplier/evaluation/${supplierId}/list`),
+    request.get<any, SupplierEvaluation[]>(`/supplier/evaluation/supplier/${supplierId}`),
 
   // 创建供应商评估
   createEvaluation: (data: SupplierEvaluation) => 
@@ -168,6 +168,6 @@ export const supplierApi = {
   // 获取供应商评分统计
   getEvaluationStats: (supplierId: number) => 
     request.get<any, { avgQuality: number, avgDelivery: number, avgPrice: number, avgService: number, avgOverall: number }>(
-      `/supplier/evaluation/${supplierId}/stats`
+      `/supplier/evaluation/supplier/${supplierId}/latest`
     )
 }
