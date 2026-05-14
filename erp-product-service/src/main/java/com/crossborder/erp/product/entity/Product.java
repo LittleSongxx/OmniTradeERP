@@ -25,13 +25,8 @@ public class Product {
     /**
      * SKU编码
      */
+    @TableField("internal_sku")
     private String sku;
-
-    /**
-     * 平台SKU（各平台自己的SKU）
-     */
-    @TableField("platform_sku")
-    private String platformSku;
 
     /**
      * 分类ID
@@ -86,17 +81,7 @@ public class Product {
      */
     private BigDecimal height;
 
-    /**
-     * 成本价
-     */
-    @TableField("cost_price")
-    private BigDecimal costPrice;
 
-    /**
-     * 销售价
-     */
-    @TableField("sale_price")
-    private BigDecimal salePrice;
 
     /**
      * 状态（0禁用 1启用）
