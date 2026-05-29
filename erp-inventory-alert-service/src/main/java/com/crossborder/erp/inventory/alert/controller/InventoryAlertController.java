@@ -27,6 +27,7 @@ public class InventoryAlertController {
     private final AlertRecordService alertRecordService;
     private final ReplenishmentSuggestionService replenishmentSuggestionService;
     private final AlertStatisticsService alertStatisticsService;
+    private final SlowMovingInventoryService slowMovingInventoryService;
 
     // ========== 预警规则管理 ==========
 
@@ -269,6 +270,51 @@ public class InventoryAlertController {
     @PostMapping("/check/batch")
     public Result<Void> batchCheckInventory(@RequestBody List<Map<String, Object>> inventoryList) {
         alertService.batchCheckInventory(inventoryList);
+        return Result.success();
+    }
+
+    // ========== 滞销商品管理 ==========
+
+    /**
+     * 检测滞销商品
+     */
+    @PostMapping("/slow-moving/detect")
+    public Result<SlowMovingInventory> detectSlowMoving(
+            @RequestParam Long productId,
+            @RequestParam String sku,
+            @RequestParam(required = false) String warehouseId) {
+        SlowMovingInventory result = slowMovingInventoryService.detectSlowMoving(productId, sku, warehouseId);
+        return Result.success(result);
+    }
+
+    /**
+     * 分页查询滞销商品
+     */
+    @GetMapping("/slow-moving")
+    public Result<IPage<SlowMovingInventory>> querySlowMoving(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String warehouseId,
+            @RequestParam(required = false) String alertLevel) {
+        return Result.success(slowMovingInventoryService.querySlowMoving(page, size, warehouseId, alertLevel));
+    }
+
+    /**
+     * 获取待推送的滞销预警
+     */
+    @GetMapping("/slow-moving/pending")
+    public Result<IPage<SlowMovingInventory>> getPendingSlowMovingAlerts(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return Result.success(slowMovingInventoryService.getPendingAlerts(page, size));
+    }
+
+    /**
+     * 标记滞销预警已通知
+     */
+    @PostMapping("/slow-moving/{id}/notified")
+    public Result<Void> markSlowMovingNotified(@PathVariable Long id) {
+        slowMovingInventoryService.markAsNotified(id);
         return Result.success();
     }
 }

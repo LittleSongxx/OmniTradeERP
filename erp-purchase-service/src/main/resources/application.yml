@@ -1,0 +1,23 @@
+server:
+  port: 8087
+spring:
+  application:
+    name: erp-purchase-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/erp_db
+    username: postgres
+    password: postgres
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        server-addr: localhost:8848
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0

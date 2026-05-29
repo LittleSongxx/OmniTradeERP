@@ -48,6 +48,8 @@
         <module>erp-pricing-service</module>
         <module>erp-inventory-prediction-service</module>
         <module>erp-social-commerce-service</module>
+        <module>erp-reporting-service</module>
+        <module>erp-purchase-service</module>
         <!-- <module>erp-analytics-service</module> -->
     </modules>
 
