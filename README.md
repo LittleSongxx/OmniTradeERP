@@ -339,6 +339,21 @@ git checkout -b feature/your-awesome-feature
 - ✨ 库存预警增强 - 滞销商品检测、低库存预警
 - ✅ 3个新微服务上线
 
+### v1.6.0 (2026-06-03) 🤖 AI订单异常检测 + 测试覆盖增强
+
+- ✨ **AI订单异常检测服务** - 规则引擎 + AI 评分双层融合
+  - 8 条核心规则（新客户大额、地址不一致、高风险国家、支付异常、优惠券滥用等）
+  - 10 维特征工程（客户行为/订单/地理/行为模式加权评分）
+  - 4 级风险等级 + 4 种处置建议（ALLOW/REVIEW/HOLD/REJECT）
+  - 单订单 + 批量检测 API
+- ✨ **测试覆盖大幅提升** - 4 个零测试模块补齐
+  - erp-customer-service: 11 个测试
+  - erp-supplier-service: 8 个测试
+  - erp-inventory-alert-service: 14 个测试
+  - erp-platform-service: 7 个测试（Amazon SP-API 签名验证）
+  - AI 异常检测: 23 个测试
+- ✅ 63 个新单元测试 100% 通过
+
 ### v1.5.0 (2026-03-20) 🔥 AI智能运营版本
 
 - ✨ 智能定价服务 - 竞品分析 + 动态调价

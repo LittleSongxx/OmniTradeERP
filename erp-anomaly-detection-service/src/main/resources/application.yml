@@ -1,0 +1,53 @@
+server:
+  port: 8138
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: erp-anomaly-detection-service
+  profiles:
+    active: dev
+
+# Swagger / OpenAPI
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.crossborder.anomaly: INFO
+    com.crossborder.anomaly.engine: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:h2:mem:anomaly_dev;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:postgresql://postgres:5432/erp_anomaly
+    username: ${DB_USER:erp}
+    password: ${DB_PASS:erp123}
