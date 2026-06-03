@@ -6,8 +6,22 @@ server:
 spring:
   application:
     name: erp-anomaly-detection-service
+
   profiles:
     active: dev
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_HOST:127.0.0.1}:${NACOS_PORT:8848}
+        namespace: ${NACOS_NAMESPACE:erp-dev}
+        group: DEFAULT_GROUP
+      config:
+        server-addr: ${NACOS_HOST:127.0.0.1}:${NACOS_PORT:8848}
+        namespace: ${NACOS_NAMESPACE:erp-dev}
+        group: DEFAULT_GROUP
+        file-extension: yml
+        refresh-enabled: true
 
 # Swagger / OpenAPI
 springdoc:
@@ -25,11 +39,16 @@ management:
   endpoint:
     health:
       show-details: always
+  # 健康检查 - 包含 discovery 状态（Nacos 心跳）
+  health:
+    discovery:
+      enabled: true
 
 logging:
   level:
     com.crossborder.anomaly: INFO
     com.crossborder.anomaly.engine: DEBUG
+    com.alibaba.nacos: WARN
 
 ---
 spring:

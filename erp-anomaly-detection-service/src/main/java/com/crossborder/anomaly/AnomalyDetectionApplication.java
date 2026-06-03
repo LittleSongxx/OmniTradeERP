@@ -2,6 +2,7 @@ package com.crossborder.anomaly;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -15,6 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  *  - 与下游订单服务、风控服务联动
  */
 @SpringBootApplication
+@EnableDiscoveryClient
 @EnableScheduling
 @EnableAsync
 public class AnomalyDetectionApplication {

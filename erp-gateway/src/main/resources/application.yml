@@ -77,6 +77,14 @@ spring:
           filters:
             - StripPrefix=2
 
+        # AI 订单异常检测服务 (v1.6.0)
+        - id: anomaly-detection-service
+          uri: lb://erp-anomaly-detection-service
+          predicates:
+            - Path=/api/v1/anomaly/**
+          filters:
+            - StripPrefix=0
+
     sentinel:
       transport:
         dashboard: localhost:8858
