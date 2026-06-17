@@ -51,6 +51,7 @@
         <module>erp-reporting-service</module>
         <module>erp-purchase-service</module>
         <module>erp-anomaly-detection-service</module>
+        <module>erp-product-recommendation-service</module>
         <!-- <module>erp-analytics-service</module> -->
     </modules>
 

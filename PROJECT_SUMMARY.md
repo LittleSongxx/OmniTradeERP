@@ -9,7 +9,31 @@
 
 ---
 
-## 🚀 今日成果汇总（2026-06-03）
+## 🚀 今日成果汇总（2026-06-17）
+
+### v1.7.0 AI 智能选品推荐服务 + 多项目并行交付
+
+**新增 AI 服务：**
+- ✅ **erp-product-recommendation-service** - AI 智能选品推荐服务（v1.7.0）
+  - 5 维度加权评分引擎（需求 0.30 + 趋势 0.20 + 利润 0.20 + 竞争 0.15 + 质量 0.15）
+  - 推荐等级：STRONG_BUY / BUY / HOLD / SKIP
+  - 季节性加成（trend>0 + seasonality>=0.7 时趋势分 ×1.15）
+  - 预期月销量/利润估算 + 综合风险评分
+  - 9 类规则命中：HIGH_SEARCH_VOLUME / STRONG_UPTREND / PEAK_SEASON / HEALTHY_MARGIN / BLUE_OCEAN / PROVEN_QUALITY / HIGH_RISK 等
+  - MyBatis-Plus 持久化 + Swagger/OpenAPI + Nacos 注册/配置 + Actuator 健康检查
+  - **22 个单元测试 100% 通过**（ScoringEngineTest 12 + ServiceTest 10）
+  - 4 个 REST 端点：执行推荐 / 查询已保存结果 / 更新采纳状态 / 健康检查
+
+**SmartITSM v1.7.0 SLA 告警增强（commit 7e0ed7a）：**
+- ✅ SlaBreachPredictionService - 4 因子加权风险评分（progressGap 0.35 + timeElapsed 0.30 + historicalBreachRate 0.20 + priorityFactor 0.15）
+- ✅ KnowledgeRecommendationService - 基于工单内容的向量相似度知识库推荐
+- ✅ 修复 SlaAlertService.recordCompliance() 业务逻辑 bug
+- ✅ **36 个单元测试 100% 通过**
+
+**SmartHR / SmartCRM / InsightAI v1.7.0（先前完成）：**
+- SmartHR 员工敬业度多维分析 (19/19)
+- SmartCRM 预测准确率追踪 + 告警 (13/13)
+- InsightAI NL2SQL 多轮对话上下文 (36/36)
 
 ### v1.6.0 AI 订单异常检测 + 测试覆盖增强
 

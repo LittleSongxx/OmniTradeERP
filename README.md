@@ -283,6 +283,7 @@ OmniTradeERP/
 ├── erp-purchase-service/       # 🛒 智能采购建议 (:8095) - 采购预测、供应商比价、采购计划
 ├── erp-inventory-alert-service/ # ⚠️ 库存预警服务 (:8096) - 滞销商品检测、低库存预警
 ├── erp-anomaly-detection-service/  # 🤖 AI订单异常检测 (:8138) - 规则引擎+AI评分双层融合
+├── erp-product-recommendation-service/  # 🎯 AI智能选品推荐 (:8139) - 多因子加权评分+趋势预测+风险评估
 │
 ├── erp-web/                    # 前端 (Vue 3)
 ├── docker/                     # Docker配置

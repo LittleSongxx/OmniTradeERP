@@ -85,6 +85,14 @@ spring:
           filters:
             - StripPrefix=0
 
+        # AI 智能选品推荐服务 (v1.7.0)
+        - id: product-recommendation-service
+          uri: lb://erp-product-recommendation-service
+          predicates:
+            - Path=/api/v1/recommend/**
+          filters:
+            - StripPrefix=0
+
     sentinel:
       transport:
         dashboard: localhost:8858
