@@ -177,9 +177,9 @@ public class AIAssistantServiceImpl implements AIAssistantService {
         SentimentAnalysis analysis = new SentimentAnalysis();
 
         // 简化版情感分析（实际应该使用NLP模型）
-        List positiveWords = Arrays.asList("好", "棒", "优秀", "满意", "喜欢", 
+        List<String> positiveWords = Arrays.asList("好", "棒", "优秀", "满意", "喜欢",
                 "good", "excellent", "satisfied", "like", "love");
-        List negativeWords = Arrays.asList("差", "糟糕", "不满", "讨厌", "失望",
+        List<String> negativeWords = Arrays.asList("差", "糟糕", "不满", "讨厌", "失望",
                 "bad", "terrible", "dissatisfied", "hate", "disappointed");
 
         double score = 0;

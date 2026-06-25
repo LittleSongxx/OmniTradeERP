@@ -1,5 +1,6 @@
 package com.crossborder.aiassistant.service.impl;
 
+import com.crossborder.aiassistant.config.LLMConfig;
 import com.crossborder.aiassistant.dto.ChatRequest;
 import com.crossborder.aiassistant.dto.ChatResponse;
 import com.crossborder.aiassistant.dto.ServiceStatistics;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
 
@@ -17,9 +19,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * AIAssistantService 单元测试
+ *
+ * 注意: 早期版本的测试文件引用了部分尚未实现的方法(如 translateText/extractIntent/extractEntities 等),
+ * 这里已根据当前接口契约调整,只保留与实际 API 对齐的测试。
  */
 @ExtendWith(MockitoExtension.class)
 class AIAssistantServiceImplTest {
+
+    @Mock
+    private LLMConfig llmConfig;
 
     @InjectMocks
     private AIAssistantServiceImpl aiAssistantService;
@@ -39,14 +47,8 @@ class AIAssistantServiceImplTest {
         ChatResponse response = aiAssistantService.chat(chatRequest);
 
         assertNotNull(response);
-        assertNotNull(response.getMessage());
-    }
-
-    @Test
-    void testChat_IncludesUserId() {
-        ChatResponse response = aiAssistantService.chat(chatRequest);
-
-        assertEquals(1001L, response.getUserId());
+        assertNotNull(response.getContent());
+        assertNotNull(response.getResponseId());
     }
 
     @Test
@@ -60,7 +62,16 @@ class AIAssistantServiceImplTest {
     void testChat_IncludesTimestamp() {
         ChatResponse response = aiAssistantService.chat(chatRequest);
 
-        assertNotNull(response.getTimestamp());
+        assertNotNull(response.getCreateTime());
+    }
+
+    @Test
+    void testChat_GeneratesSessionIdWhenMissing() {
+        chatRequest.setSessionId(null);
+        ChatResponse response = aiAssistantService.chat(chatRequest);
+
+        assertNotNull(response.getSessionId());
+        assertFalse(response.getSessionId().isEmpty());
     }
 
     @Test
@@ -78,6 +89,7 @@ class AIAssistantServiceImplTest {
         List<AIAssistantService.ChatMessage> history = aiAssistantService.getChatHistory(1001L, "session-001");
 
         assertNotNull(history);
+        assertFalse(history.isEmpty());
     }
 
     @Test
@@ -85,6 +97,7 @@ class AIAssistantServiceImplTest {
         List<AIAssistantService.ChatMessage> history = aiAssistantService.getChatHistory(999L, "non-existent");
 
         assertNotNull(history);
+        assertTrue(history.isEmpty());
     }
 
     @Test
@@ -96,50 +109,54 @@ class AIAssistantServiceImplTest {
         aiAssistantService.clearChatHistory(1001L, "session-001");
 
         List<AIAssistantService.ChatMessage> history = aiAssistantService.getChatHistory(1001L, "session-001");
-        
+
         assertTrue(history.isEmpty());
     }
 
     @Test
     void testAnalyzeSentiment_PositiveText() {
         String positiveText = "这个产品太棒了，我非常喜欢！";
-        
-        AIAssistantService.SentimentResult sentiment = aiAssistantService.analyzeSentiment(positiveText);
+
+        AIAssistantService.SentimentAnalysis sentiment = aiAssistantService.analyzeSentiment(positiveText);
 
         assertNotNull(sentiment);
         assertNotNull(sentiment.getSentiment());
+        assertEquals("positive", sentiment.getSentiment());
     }
 
     @Test
     void testAnalyzeSentiment_NegativeText() {
-        String negativeText = "这个产品太差了，完全不满意";
-        
-        AIAssistantService.SentimentResult sentiment = aiAssistantService.analyzeSentiment(negativeText);
+        // 使用 2 个明确的负面词,确保分数越过 -0.1 阈值
+        String negativeText = "这个产品太差了，糟糕透了";
+
+        AIAssistantService.SentimentAnalysis sentiment = aiAssistantService.analyzeSentiment(negativeText);
 
         assertNotNull(sentiment);
+        assertEquals("negative", sentiment.getSentiment());
     }
 
     @Test
     void testAnalyzeSentiment_NeutralText() {
         String neutralText = "这个产品还可以";
-        
-        AIAssistantService.SentimentResult sentiment = aiAssistantService.analyzeSentiment(neutralText);
+
+        AIAssistantService.SentimentAnalysis sentiment = aiAssistantService.analyzeSentiment(neutralText);
 
         assertNotNull(sentiment);
+        assertEquals("neutral", sentiment.getSentiment());
     }
 
     @Test
     void testSearchKnowledge_ReturnsResults() {
         String query = "发货";
-        
-        List<AIAssistantService.Knowledge> results = aiAssistantService.searchKnowledge(query);
+
+        List<AIAssistantService.Knowledge> results = aiAssistantService.searchKnowledge(query, 5);
 
         assertNotNull(results);
     }
 
     @Test
     void testSearchKnowledge_EmptyQuery() {
-        List<AIAssistantService.Knowledge> results = aiAssistantService.searchKnowledge("");
+        List<AIAssistantService.Knowledge> results = aiAssistantService.searchKnowledge("", 5);
 
         assertNotNull(results);
     }
@@ -150,97 +167,58 @@ class AIAssistantServiceImplTest {
         knowledge.setQuestion("测试问题");
         knowledge.setAnswer("测试答案");
         knowledge.setCategory("测试");
-        
+
         aiAssistantService.addKnowledge(knowledge);
 
-        List<AIAssistantService.Knowledge> results = aiAssistantService.searchKnowledge("测试问题");
-        
+        List<AIAssistantService.Knowledge> results = aiAssistantService.searchKnowledge("测试问题", 5);
+
         assertNotNull(results);
     }
 
     @Test
-    void testGetServiceStatistics_ReturnsStats() {
-        ServiceStatistics stats = aiAssistantService.getServiceStatistics();
+    void testGetStatistics_ReturnsStats() {
+        ServiceStatistics stats = aiAssistantService.getStatistics();
 
         assertNotNull(stats);
-        assertNotNull(stats.getTotalConversations());
     }
 
     @Test
     void testResetStatistics_ResetsCounters() {
         // 先产生一些统计数据
         aiAssistantService.chat(chatRequest);
-        
+
         // 重置统计
         aiAssistantService.resetStatistics();
-        
-        ServiceStatistics stats = aiAssistantService.getServiceStatistics();
-        
+
+        ServiceStatistics stats = aiAssistantService.getStatistics();
+
         assertNotNull(stats);
     }
 
     @Test
-    void testDetectLanguage_Chinese() {
-        String chinese = "你好，这个产品怎么样？";
-        
-        String language = aiAssistantService.detectLanguage(chinese);
-        
-        assertEquals("zh", language);
+    void testRecognizeIntent_ReturnsResult() {
+        AIAssistantService.IntentRecognition recognition = aiAssistantService.recognizeIntent("我的订单在哪里？");
+
+        assertNotNull(recognition);
+        assertNotNull(recognition.getIntent());
     }
 
     @Test
-    void testDetectLanguage_English() {
-        String english = "Hello, how are you?";
-        
-        String language = aiAssistantService.detectLanguage(english);
-        
-        assertEquals("en", language);
-    }
+    void testBatchAddKnowledge_AddsAll() {
+        AIAssistantService.Knowledge k1 = new AIAssistantService.Knowledge();
+        k1.setQuestion("批量1");
+        k1.setAnswer("答案1");
+        k1.setCategory("测试");
 
-    @Test
-    void testTranslateText_Translation() {
-        String text = "你好";
-        String targetLang = "en";
-        
-        String translated = aiAssistantService.translateText(text, targetLang);
-        
-        assertNotNull(translated);
-    }
+        AIAssistantService.Knowledge k2 = new AIAssistantService.Knowledge();
+        k2.setQuestion("批量2");
+        k2.setAnswer("答案2");
+        k2.setCategory("测试");
 
-    @Test
-    void testExtractIntent_OrderInquiry() {
-        String orderText = "我的订单在哪里？";
-        
-        String intent = aiAssistantService.extractIntent(orderText);
-        
-        assertNotNull(intent);
-    }
+        aiAssistantService.batchAddKnowledge(List.of(k1, k2));
 
-    @Test
-    void testExtractIntent_ProductInquiry() {
-        String productText = "这个产品有什么特性？";
-        
-        String intent = aiAssistantService.extractIntent(productText);
-        
-        assertNotNull(intent);
-    }
-
-    @Test
-    void testExtractEntities_ExtractsProducts() {
-        String text = "我想买iPhone 15和MacBook";
-        
-        List<String> entities = aiAssistantService.extractEntities(text, "PRODUCT");
-        
-        assertNotNull(entities);
-    }
-
-    @Test
-    void testGenerateResponse_WithContext() {
-        chatRequest.setContext("用户正在询问订单状态");
-        
-        ChatResponse response = aiAssistantService.chat(chatRequest);
-        
-        assertNotNull(response);
+        List<AIAssistantService.Knowledge> results = aiAssistantService.searchKnowledge("批量", 10);
+        assertNotNull(results);
     }
 
     @Test
@@ -249,18 +227,19 @@ class AIAssistantServiceImplTest {
         msg1.setUserId(1001L);
         msg1.setSessionId("test-session");
         msg1.setMessage("第一个问题");
-        
+
         ChatRequest msg2 = new ChatRequest();
         msg2.setUserId(1001L);
         msg2.setSessionId("test-session");
         msg2.setMessage("第二个问题");
-        
+
         aiAssistantService.chat(msg1);
         aiAssistantService.chat(msg2);
-        
+
         List<AIAssistantService.ChatMessage> history = aiAssistantService.getChatHistory(1001L, "test-session");
-        
+
         // 历史应该包含之前的消息
         assertNotNull(history);
+        assertFalse(history.isEmpty());
     }
 }
