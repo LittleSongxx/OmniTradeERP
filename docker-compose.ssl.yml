@@ -1,0 +1,22 @@
+# SSL 证书自动续期配置
+# 使用方法：docker-compose -f docker-compose.yml -f docker-compose.ssl.yml up -d
+
+version: '3.8'
+
+services:
+  # Certbot 自动续期服务
+  certbot:
+    image: certbot/certbot:latest
+    container_name: erp-certbot
+    volumes:
+      - ./nginx/ssl:/etc/letsencrypt
+    # 每 12 小时检查一次续期（Let's Encrypt 证书 90 天有效期，建议 60 天续期）
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait ${!}; done;'"
+    restart: unless-stopped
+    networks:
+      - erp-network
+
+  # Nginx 服务（从主配置继承，添加证书卷）
+  nginx:
+    volumes:
+      - ./nginx/ssl:/etc/nginx/ssl:ro

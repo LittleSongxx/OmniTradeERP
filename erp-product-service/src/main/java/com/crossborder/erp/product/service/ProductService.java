@@ -12,7 +12,7 @@ public interface ProductService {
 
     Product getProductBySku(String sku);
 
-    IPage<Product> pageProducts(Page<Product> page, String productName, Long categoryId);
+    IPage<Product> pageProducts(Page<Product> page, String keyword, String brand);
 
     void deleteProduct(Long id);
 }

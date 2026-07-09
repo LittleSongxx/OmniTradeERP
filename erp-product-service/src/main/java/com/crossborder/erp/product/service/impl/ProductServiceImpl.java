@@ -44,15 +44,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public IPage<Product> pageProducts(Page<Product> page, String productName, Long categoryId) {
+    public IPage<Product> pageProducts(Page<Product> page, String keyword, String brand) {
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
         
-        if (productName != null && !productName.isEmpty()) {
-            wrapper.like(Product::getName, productName);
+        if (keyword != null && !keyword.isEmpty()) {
+            wrapper.like(Product::getName, keyword)
+                   .or()
+                   .like(Product::getSku, keyword)
+                   .or()
+                   .like(Product::getDescription, keyword);
         }
         
-        if (categoryId != null) {
-            wrapper.eq(Product::getCategoryId, categoryId);
+        if (brand != null && !brand.isEmpty()) {
+            wrapper.eq(Product::getBrand, brand);
         }
         
         wrapper.orderByDesc(Product::getCreateTime);

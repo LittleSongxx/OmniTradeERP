@@ -309,8 +309,9 @@ const loadCustomers = async () => {
       level: searchForm.level || undefined,
       country: searchForm.country || undefined
     })
-    customerList.value = res.records || []
-    pagination.total = res.total || 0
+    const pageData = res.data || {}
+    customerList.value = pageData.records || []
+    pagination.total = pageData.total || 0
   } catch (error) {
     console.error('加载客户失败', error)
   } finally {

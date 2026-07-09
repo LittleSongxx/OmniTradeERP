@@ -466,8 +466,9 @@ const loadRates = async () => {
       fromCountry: rateSearchForm.fromCountry || undefined,
       toCountry: rateSearchForm.toCountry || undefined
     })
-    rateList.value = res.records || []
-    ratePagination.total = res.total || 0
+    const pageData = res.data || {}
+    rateList.value = pageData.records || []
+    ratePagination.total = pageData.total || 0
   } catch (error) {
     // 模拟数据
     rateList.value = [

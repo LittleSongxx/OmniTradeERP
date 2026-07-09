@@ -502,8 +502,9 @@ const loadSuppliers = async () => {
       level: searchForm.level || undefined,
       country: searchForm.country || undefined
     })
-    supplierList.value = res.records || []
-    pagination.total = res.total || 0
+    const pageData = res.data || {}
+    supplierList.value = pageData.records || []
+    pagination.total = pageData.total || 0
   } catch (error) {
     console.error('加载供应商失败', error)
   } finally {
@@ -648,8 +649,9 @@ const loadPurchaseOrders = async () => {
       status: purchaseSearchForm.status || undefined,
       paymentStatus: purchaseSearchForm.paymentStatus || undefined
     })
-    purchaseOrderList.value = res.records || []
-    purchasePagination.total = res.total || 0
+    const pageData = res.data || {}
+    purchaseOrderList.value = pageData.records || []
+    purchasePagination.total = pageData.total || 0
   } catch (error) {
     console.error('加载采购订单失败', error)
   } finally {

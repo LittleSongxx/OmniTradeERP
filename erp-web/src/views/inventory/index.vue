@@ -376,8 +376,9 @@ const loadInventory = async () => {
       status: filterForm.status || undefined
     }
     const res = await inventoryApi.getInventoryList(params)
-    inventoryList.value = res.records || []
-    pagination.total = res.total || 0
+    const pageData = res.data || {}
+    inventoryList.value = pageData.records || []
+    pagination.total = pageData.total || 0
   } catch (error) {
     console.error('加载库存列表失败:', error)
   } finally {
@@ -554,7 +555,8 @@ const handleDetail = async (row: Inventory) => {
   Object.assign(currentDetail, row)
   try {
     const res = await inventoryApi.getStockFlows(row.id)
-    stockFlows.value = res.records || []
+    const pageData = res.data || {}
+    stockFlows.value = pageData.records || []
   } catch (error) {
     console.error('加载流水失败:', error)
     stockFlows.value = []

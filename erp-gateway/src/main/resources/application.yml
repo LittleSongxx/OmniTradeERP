@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: erp-gateway
+  main:
+    web-application-type: reactive
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   cloud:
     nacos:
       discovery:
@@ -15,67 +20,81 @@ spring:
         namespace: erp-dev
         group: DEFAULT_GROUP
         file-extension: yml
+        import-check:
+          enabled: false
     gateway:
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
       routes:
-        # 租户服务（新）
-        - id: tenant-service
-          uri: lb://erp-tenant-service
+        - id: auth-service
+          uri: lb://erp-user-service
           predicates:
-            - Path=/api/v1/auth/**,/api/v1/tenant/**
+            - Path=/api/auth/**
           filters:
             - StripPrefix=1
-
-        # 订单服务（多租户）
         - id: order-service
           uri: lb://erp-order-service
           predicates:
             - Path=/api/order/**
           filters:
-            - StripPrefix=2
-
-        # 产品服务（多租户）
+            - StripPrefix=1
         - id: product-service
           uri: lb://erp-product-service
           predicates:
             - Path=/api/product/**
           filters:
-            - StripPrefix=2
-
-        # 库存服务（多租户）
-        - id: inventory-service
-          uri: lb://erp-inventory-service
-          predicates:
-            - Path=/api/inventory/**
-          filters:
-            - StripPrefix=2
-
-        # 财务服务（多租户）
-        - id: finance-service
-          uri: lb://erp-finance-service
-          predicates:
-            - Path=/api/finance/**
-          filters:
-            - StripPrefix=2
-
-        # 仓库服务（多租户）
-        - id: warehouse-service
-          uri: lb://erp-warehouse-service
-          predicates:
-            - Path=/api/warehouse/**
-          filters:
-            - StripPrefix=2
-
-        # 平台API服务
+            - StripPrefix=1
         - id: platform-service
           uri: lb://erp-platform-service
           predicates:
             - Path=/api/platform/**
           filters:
             - StripPrefix=2
+
+        # 供应商管理服务
+        - id: supplier-service
+          uri: lb://erp-supplier-service
+          predicates:
+            - Path=/api/supplier/**
+          filters:
+            - StripPrefix=1
+        # 客户管理服务
+        - id: customer-service
+          uri: lb://erp-customer-service
+          predicates:
+            - Path=/api/customer/**
+          filters:
+            - StripPrefix=1
+        # 仓储管理服务
+        - id: warehouse-service
+          uri: lb://erp-warehouse-service
+          predicates:
+            - Path=/api/warehouse/**
+          filters:
+            - StripPrefix=1
+        # 库存服务
+        - id: inventory-service
+          uri: lb://erp-inventory-service
+          predicates:
+            - Path=/api/inventory/**
+          filters:
+            - StripPrefix=1
+        # 财务服务
+        - id: finance-service
+          uri: lb://erp-finance-service
+          predicates:
+            - Path=/api/finance/**
+          filters:
+            - StripPrefix=1
+        # 物流服务
+        - id: logistics-service
+          uri: lb://erp-logistics-service
+          predicates:
+            - Path=/api/logistics/**
+          filters:
+            - StripPrefix=1
 
         # AI 订单异常检测服务 (v1.6.0)
         - id: anomaly-detection-service
@@ -108,3 +127,4 @@ management:
 logging:
   level:
     org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.loadbalancer: DEBUG

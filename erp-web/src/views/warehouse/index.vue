@@ -311,8 +311,9 @@ const loadWarehouses = async () => {
       keyword: filterForm.keyword
     }
     const res = await warehouseApi.getWarehouseList(params)
-    warehouseList.value = res.records
-    pagination.total = res.total
+    const pageData = res.data || {}
+    warehouseList.value = pageData.records || []
+    pagination.total = pageData.total || 0
   } catch (error) {
     console.error('加载仓库列表失败:', error)
   } finally {

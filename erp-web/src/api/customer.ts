@@ -55,11 +55,11 @@ export interface PageResult<T> {
 export const customerApi = {
   // 创建客户
   create: (data: Customer) => 
-    request.post<any, number>('/customer/customer/create', data),
+    request.post<any, number>('/customer/create', data),
 
   // 获取客户详情
   getById: (id: number) => 
-    request.get<any, Customer>(`/customer/customer/${id}`),
+    request.get<any, Customer>(`/customer/${id}`),
 
   // 分页查询客户
   getList: (params: {
@@ -69,21 +69,21 @@ export const customerApi = {
     platform?: string
     level?: string
     country?: string
-  }) => request.get<any, PageResult<Customer>>('/customer/customer/list', { params }),
+  }) => request.get<any, PageResult<Customer>>('/customer/list', { params }),
 
   // 获取客户统计
   getStats: () => 
-    request.get<any, CustomerStats>('/customer/customer/stats'),
+    request.get<any, CustomerStats>('/customer/stats'),
 
   // 获取VIP客户
   getVipList: () => 
-    request.get<any, Customer[]>('/customer/customer/vip'),
+    request.get<any, Customer[]>('/customer/vip'),
 
   // 更新客户
   update: (id: number, data: Customer) => 
-    request.put<any, void>(`/customer/customer/${id}`, data),
+    request.put<any, void>(`/customer/${id}`, data),
 
   // 删除客户
   delete: (id: number) => 
-    request.delete<any, void>(`/customer/customer/${id}`)
+    request.delete<any, void>(`/customer/${id}`)
 }

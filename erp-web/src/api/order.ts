@@ -107,36 +107,36 @@ export const orderApi = {
     size: number
     platform?: string
     status?: string
-  }) => request.get<any, PageResult<Order>>('/order/order/list', { params }),
+  }) => request.get<any, PageResult<Order>>('/order/list', { params }),
 
   // 高级分页查询订单
   advancedQuery: (data: OrderQueryRequest) => 
-    request.post<any, PageResult<Order>>('/order/order/advanced/list', data),
+    request.post<any, PageResult<Order>>('/order/advanced/list', data),
 
   // 获取订单详情
-  getOrder: (orderId: number) => request.get<any, Order>(`/order/order/${orderId}`),
+  getOrder: (orderId: number) => request.get<any, Order>(`/order/${orderId}`),
 
   // 更新订单状态
   updateStatus: (orderId: number, status: string) =>
-    request.put(`/order/order/${orderId}/status`, null, { params: { status } }),
+    request.put(`/order/${orderId}/status`, null, { params: { status } }),
 
   // 更新物流信息
   updateShipping: (orderId: number, trackingNumber: string, logisticsCompany: string) =>
-    request.put(`/order/order/${orderId}/shipping`, null, {
+    request.put(`/order/${orderId}/shipping`, null, {
       params: { trackingNumber, logisticsCompany }
     }),
 
   // 批量更新订单状态
   batchUpdateStatus: (data: OrderBatchRequest) =>
-    request.post<any, number>('/order/order/batch/update-status', data),
+    request.post<any, number>('/order/batch/update-status', data),
 
   // 批量标记发货
   batchMarkShipped: (data: OrderBatchRequest) =>
-    request.post<any, number>('/order/order/batch/mark-shipped', data),
+    request.post<any, number>('/order/batch/mark-shipped', data),
 
   // 批量导出订单
   batchExport: async (data: OrderBatchRequest) => {
-    const response = await request.post<any, OrderExportResponse>('/order/order/batch/export', data)
+    const response = await request.post<any, OrderExportResponse>('/order/batch/export', data)
     return response
   },
 
@@ -187,13 +187,13 @@ export const orderApi = {
 
   // 按国家统计订单
   countByCountry: (data: OrderQueryRequest) =>
-    request.post<any, Record<string, number>>('/order/order/statistics/by-country', data),
+    request.post<any, Record<string, number>>('/order/statistics/by-country', data),
 
   // 按平台统计订单金额
   sumAmountByPlatform: (data: OrderQueryRequest) =>
-    request.post<any, Record<string, number>>('/order/order/statistics/by-platform', data),
+    request.post<any, Record<string, number>>('/order/statistics/by-platform', data),
 
   // 获取订单商品明细
   getOrderItems: (orderId: number) => 
-    request.get<any, OrderItem[]>(`/order/order/${orderId}/items`)
+    request.get<any, OrderItem[]>(`/order/${orderId}/items`)
 }
