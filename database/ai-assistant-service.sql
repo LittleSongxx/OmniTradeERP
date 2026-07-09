@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS intent_recognition_log (
 -- 情感分析历史表
 CREATE TABLE IF NOT EXISTS sentiment_analysis_log (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '日志ID',
-'    user_id BIGINT COMMENT '用户ID',
+    user_id BIGINT COMMENT '用户ID',
     session_id VARCHAR(64) COMMENT '会话ID',
     text TEXT NOT NULL COMMENT '分析文本',
     sentiment VARCHAR(20) NOT NULL COMMENT '情感（positive、negative、neutral）',

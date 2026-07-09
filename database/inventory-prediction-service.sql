@@ -4,7 +4,7 @@
 -- 创建时间: 2026-03-17
 
 -- 创建数据库（如果不存在）
-CREATE DATABASE IF NOT EXISTS erp_inventory_prediction_prediction_db
+CREATE DATABASE IF NOT EXISTS erp_inventory_prediction_db
 DEFAULT CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS replenishment_suggestion (
     INDEX idx_product_id (product_id),
     INDEX idx_status (status),
     INDEX idx_urgency (urgency),
-    INDEX INDEX idx_create_time (create_time)
+    INDEX idx_create_time (create_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='补货建议表';
 
 -- 库存周转率表

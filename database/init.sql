@@ -41,7 +41,7 @@ CREATE TABLE `t_order` (
     `recipient_postal_code` VARCHAR(20) COMMENT '收货人邮编',
     `recipient_phone` VARCHAR(50) COMMENT '收货人电话',
     `remark` TEXT COMMENT '订单备注',
-    `raw_data` TEXT TEXT COMMENT '平台原始数据JSON',
+    `raw_data` TEXT COMMENT '平台原始数据JSON',
     `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `create_by` VARCHAR(100) COMMENT '创建人',
@@ -145,7 +145,7 @@ CREATE TABLE `t_platform_product_mapping` (
     `mapping_data` TEXT COMMENT '映射数据JSON',
     `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    `deleted` TINYINTINT NOT NULL DEFAULT 0 COMMENT '逻辑删除标记',
+    `deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除标记',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_mapping` (`internal_sku`, `platform`, `shop_id`),
     KEY `idx_platform_sku` (`platform`, `platform_sku`)
@@ -401,7 +401,7 @@ CREATE TABLE `t_platform_config` (
     `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `create_by` VARCHAR(100) COMMENT '创建人',
-    `update_by` VARCHAR(100)` COMMENT '更新人',
+    `update_by` VARCHAR(100) COMMENT '更新人',
     `deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除标记',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_platform_shop` (`platform`, `shop_id`)

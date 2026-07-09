@@ -13,7 +13,7 @@ USE erp_pricing_db;
 -- 产品表
 CREATE TABLE IF NOT EXISTS product (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '产品ID',
-    product_code VARCHAR(50) NOT NULL COMMENT UNIQUE '产品编码',
+    product_code VARCHAR(50) NOT NULL COMMENT '产品编码',
     product_name VARCHAR(200) NOT NULL COMMENT '产品名称',
     cost_price DECIMAL(10,2) NOT NULL COMMENT '成本价',
     selling_price DECIMAL(10,2) NOT NULL COMMENT '当前售价',
@@ -25,9 +25,11 @@ CREATE TABLE IF NOT EXISTS product (
     enable_competitor_analysis TINYINT DEFAULT 1 COMMENT '启用竞品分析',
     enable_seasonal_adjustment TINYINT DEFAULT 1 COMMENT '启用季节性调整',
     enable_inventory_adjustment TINYINT DEFAULT 1 COMMENT '启用库存调整',
+    min_price DECIMAL(10,2) COMMENT '最低售价',
+    max_price DECIMAL(10,2) COMMENT '最高售价',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    INDEX idx_product_code (product_code),
+    UNIQUE KEY uk_product_code (product_code),
     INDEX idx_platform_id (platform_id),
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='产品表';
