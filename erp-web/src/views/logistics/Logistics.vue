@@ -66,7 +66,7 @@
       </el-row>
       
       <div style="text-align: center; margin-top: 20px">
-        <el-button type="primary" size="large" :icon="Calculator" @click="calculateRates" :loading="calculating">
+        <el-button type="primary" size="large" :icon="DataAnalysis" @click="calculateRates" :loading="calculating">
           计算运费
         </el-button>
       </div>
@@ -329,7 +329,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Calculator, Refresh, Plus } from '@element-plus/icons-vue'
+import { DataAnalysis, Refresh, Plus } from '@element-plus/icons-vue'
 import { logisticsApi, type LogisticsChannel, type LogisticsRate, type ShippingRateQuery, type ShippingRateResult } from '@/api/inventory-alert'
 
 const calculating = ref(false)

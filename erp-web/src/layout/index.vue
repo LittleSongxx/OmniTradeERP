@@ -85,6 +85,48 @@
           <el-icon><UserFilled /></el-icon>
           <span>用户管理</span>
         </el-menu-item>
+
+        <!-- ====== 数据分析（新增）====== -->
+        <el-sub-menu index="analytics-group">
+          <template #title>
+            <el-icon><DataLine /></el-icon>
+            <span>数据分析</span>
+          </template>
+          <el-menu-item index="/analytics">数据看板</el-menu-item>
+          <el-menu-item index="/report">报表中心</el-menu-item>
+        </el-sub-menu>
+
+        <!-- ====== AI 智能中心（新增）====== -->
+        <el-sub-menu index="ai-group">
+          <template #title>
+            <el-icon><MagicStick /></el-icon>
+            <span>AI 智能中心</span>
+          </template>
+          <el-menu-item index="/ai/assistant">AI 客服助手</el-menu-item>
+          <el-menu-item index="/ai/pricing">智能定价</el-menu-item>
+          <el-menu-item index="/ai/recommend">选品推荐</el-menu-item>
+          <el-menu-item index="/ai/anomaly">异常检测</el-menu-item>
+          <el-menu-item index="/ai/description">描述生成</el-menu-item>
+          <el-menu-item index="/ai/inventory-predict">库存预测</el-menu-item>
+        </el-sub-menu>
+
+        <!-- ====== 采购管理（新增）====== -->
+        <el-menu-item index="/purchase">
+          <el-icon><ShoppingCart /></el-icon>
+          <span>采购管理</span>
+        </el-menu-item>
+
+        <!-- ====== 社交电商（新增）====== -->
+        <el-menu-item index="/social">
+          <el-icon><Share /></el-icon>
+          <span>社交电商</span>
+        </el-menu-item>
+
+        <!-- ====== 租户管理（新增）====== -->
+        <el-menu-item index="/tenant">
+          <el-icon><Key /></el-icon>
+          <span>租户管理</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 
@@ -115,7 +157,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { DataAnalysis, Document, Goods, User, OfficeBuilding, Box, House, Van, Setting, Money, UserFilled, ArrowDown } from '@element-plus/icons-vue'
+import { DataAnalysis, Document, Goods, User, OfficeBuilding, Box, House, Van, Setting, Money, UserFilled, ArrowDown, DataLine, MagicStick, ShoppingCart, Share, Key } from '@element-plus/icons-vue'
 
 const route = useRoute()
 
