@@ -54,7 +54,7 @@ public class ProductRecommendationController {
         Map<String, Object> r = new HashMap<>();
         r.put("status", "UP");
         r.put("service", "erp-product-recommendation-service");
-        r.put("version", "v1.7.0");
+        r.put("version", "v1.9.0");
         return ResponseEntity.ok(r);
     }
 }

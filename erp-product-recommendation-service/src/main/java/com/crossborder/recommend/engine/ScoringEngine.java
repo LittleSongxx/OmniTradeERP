@@ -30,20 +30,36 @@ public class ScoringEngine {
     public static final double W_QUALITY = 0.15;
 
     /**
-     * 计算单个候选商品的推荐评分
+     * 当前生效权重（可由 WeightTuner 动态调整）
+     * 默认值 = 上面 5 个常量
+     */
+    private volatile double[] activeWeights = new double[]{
+        W_DEMAND, W_TREND, W_PROFIT, W_COMPETITION, W_QUALITY
+    };
+
+    /**
+     * 评分主入口 - 使用当前权重
      */
     public RecommendationScore score(CandidateFeatures f) {
+        return score(f, activeWeights);
+    }
+
+    /**
+     * 评分主入口 - 显式传入权重（用于回滚/A/B 测试）
+     */
+    public RecommendationScore score(CandidateFeatures f, double[] weights) {
+        validateWeights(weights);
         double demand = calcDemandScore(f);
         double trend = calcTrendScore(f);
         double profit = calcProfitScore(f);
         double competition = calcCompetitionScore(f);
         double quality = calcQualityScore(f);
 
-        double rawScore = demand * W_DEMAND
-            + trend * W_TREND
-            + profit * W_PROFIT
-            + competition * W_COMPETITION
-            + quality * W_QUALITY;
+        double rawScore = demand * weights[0]
+            + trend * weights[1]
+            + profit * weights[2]
+            + competition * weights[3]
+            + quality * weights[4];
 
         // 映射 0~1 → 0~100
         double finalScore = clamp01(rawScore) * 100.0;
@@ -244,5 +260,46 @@ public class ScoringEngine {
 
     static double round2(double v) {
         return Math.round(v * 100.0) / 100.0;
+    }
+
+    /**
+     * 动态设置生效权重（由 WeightTuner 调用）
+     */
+    public void setActiveWeights(double[] weights) {
+        validateWeights(weights);
+        this.activeWeights = weights.clone();
+        log.info("ScoringEngine 权重已更新: demand={} trend={} profit={} competition={} quality={}",
+            weights[0], weights[1], weights[2], weights[3], weights[4]);
+    }
+
+    /**
+     * 获取当前生效权重副本
+     */
+    public double[] getActiveWeights() {
+        return activeWeights.clone();
+    }
+
+    /**
+     * 重置为默认权重
+     */
+    public void resetWeights() {
+        this.activeWeights = new double[]{W_DEMAND, W_TREND, W_PROFIT, W_COMPETITION, W_QUALITY};
+        log.info("ScoringEngine 权重已重置为默认值");
+    }
+
+    static void validateWeights(double[] w) {
+        if (w == null || w.length != 5) {
+            throw new IllegalArgumentException("权重数组必须是长度 5");
+        }
+        double sum = 0;
+        for (double v : w) {
+            if (Double.isNaN(v) || v < 0 || v > 1) {
+                throw new IllegalArgumentException("权重值必须在 [0,1] 范围内");
+            }
+            sum += v;
+        }
+        if (Math.abs(sum - 1.0) > 0.01) {
+            throw new IllegalArgumentException("权重总和必须接近 1.0 (实际=" + sum + ")");
+        }
     }
 }

@@ -13,11 +13,11 @@
 
     <groupId>com.crossborder</groupId>
     <artifactId>erp-product-recommendation-service</artifactId>
-    <version>1.7.0</version>
+    <version>1.9.0</version>
     <packaging>jar</packaging>
 
     <name>OmniTrade ERP - AI Product Recommendation Service</name>
-    <description>AI 智能选品推荐服务 - 基于销售数据 + 向量相似度 + LLM 推理</description>
+    <description>AI 智能选品推荐服务 - 评分引擎 + Feedback 闭环自适应调优 (v1.9.0)</description>
 
     <properties>
         <java.version>21</java.version>

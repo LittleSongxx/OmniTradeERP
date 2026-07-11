@@ -1,4 +1,4 @@
--- 选品推荐服务 v1.7.0 schema
+-- 选品推荐服务 v1.9.0 schema (包含 Feedback 闭环表)
 -- 兼容 H2 (开发) / PostgreSQL (生产)
 
 CREATE TABLE IF NOT EXISTS recommend_candidate (

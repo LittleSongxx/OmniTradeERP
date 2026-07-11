@@ -246,4 +246,89 @@ class ScoringEngineTest {
         // 销量 1000 * (25-10)=15 * 0.5 = 7500
         assertEquals(7500.0, profit, 0.01);
     }
+
+    // ==================== v1.9.0 动态权重测试 ====================
+
+    @Test
+    @DisplayName("setActiveWeights: 合法权重可生效并被 score 使用")
+    void setActiveWeightsValid() {
+        CandidateFeatures f = CandidateFeatures.builder()
+            .candidateId(1L).sku("X").category("C").platform("amazon")
+            .monthlySearches(50000L).last30dSales(2000L)
+            .bsrRank(500).reviewCount(2000).avgRating(4.5)
+            .grossMargin(0.5).trendScore(0.5).seasonality(0.5).competitionIntensity(0.4)
+            .costPrice(10.0).suggestPrice(25.0)
+            .build();
+
+        // 默认权重打分
+        double scoreDefault = engine.score(f).getScore();
+
+        // 调整为 demand 主导
+        engine.setActiveWeights(new double[]{0.50, 0.20, 0.10, 0.10, 0.10});
+        double scoreDemandHeavy = engine.score(f).getScore();
+
+        // 调整为 trend 主导
+        engine.setActiveWeights(new double[]{0.10, 0.50, 0.20, 0.10, 0.10});
+        double scoreTrendHeavy = engine.score(f).getScore();
+
+        // 同一候选在不同权重下应有不同得分
+        assertNotEquals(scoreDefault, scoreDemandHeavy, 0.01);
+        assertNotEquals(scoreDemandHeavy, scoreTrendHeavy, 0.01);
+    }
+
+    @Test
+    @DisplayName("setActiveWeights: 非法权重应抛异常")
+    void setActiveWeightsInvalid() {
+        // 长度不对
+        assertThrows(IllegalArgumentException.class,
+            () -> engine.setActiveWeights(new double[]{0.5, 0.5}));
+        // 总和不对
+        assertThrows(IllegalArgumentException.class,
+            () -> engine.setActiveWeights(new double[]{0.5, 0.2, 0.2, 0.1, 0.1}));
+        // 负数
+        assertThrows(IllegalArgumentException.class,
+            () -> engine.setActiveWeights(new double[]{0.4, -0.1, 0.3, 0.2, 0.2}));
+    }
+
+    @Test
+    @DisplayName("resetWeights: 重置为默认值")
+    void resetWeights() {
+        engine.setActiveWeights(new double[]{0.10, 0.10, 0.30, 0.40, 0.10});
+        engine.resetWeights();
+
+        double[] w = engine.getActiveWeights();
+        assertEquals(ScoringEngine.W_DEMAND, w[0], 0.001);
+        assertEquals(ScoringEngine.W_TREND, w[1], 0.001);
+        assertEquals(ScoringEngine.W_PROFIT, w[2], 0.001);
+        assertEquals(ScoringEngine.W_COMPETITION, w[3], 0.001);
+        assertEquals(ScoringEngine.W_QUALITY, w[4], 0.001);
+    }
+
+    @Test
+    @DisplayName("getActiveWeights: 返回副本，外部修改不影响内部状态")
+    void getActiveWeightsReturnsCopy() {
+        double[] w = engine.getActiveWeights();
+        w[0] = 999.0;
+        double[] w2 = engine.getActiveWeights();
+        assertNotEquals(999.0, w2[0], 0.001);
+    }
+
+    @Test
+    @DisplayName("score(f, weights): 显式传权重不影响 activeWeights")
+    void scoreWithExplicitWeights() {
+        CandidateFeatures f = CandidateFeatures.builder()
+            .candidateId(1L).sku("X").category("C").platform("amazon")
+            .monthlySearches(10000L).last30dSales(500L)
+            .bsrRank(2000).reviewCount(500).avgRating(4.0)
+            .grossMargin(0.3).trendScore(0.3).seasonality(0.3).competitionIntensity(0.5)
+            .costPrice(10.0).suggestPrice(25.0)
+            .build();
+
+        double[] before = engine.getActiveWeights();
+        engine.score(f, new double[]{0.10, 0.10, 0.10, 0.60, 0.10});
+        double[] after = engine.getActiveWeights();
+
+        // activeWeights 应不变
+        assertArrayEquals(before, after, 0.001);
+    }
 }
