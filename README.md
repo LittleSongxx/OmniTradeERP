@@ -46,7 +46,7 @@
 
 | 对比项 | OmniTrade ERP | 竞品A | 竞品B |
 |--------|---------------|-------|-------|
-| **AI能力** | 🤖 4大AI服务原生集成 | ❌ 无 | ❌ 无 |
+| **AI能力** | 🤖 9大AI服务原生集成 | ❌ 无 | ❌ 无 |
 | **平台数量** | 10+ 且持续增加 | 3-5 | 2-3 |
 | **技术栈** | Java 21 + Vue 3 + Spring Cloud | Java 8 + Vue 2 | Python + Django |
 | **微服务架构** | ✅ 完整生态 Nacos/Sentinel/Gateway | ⚠️ 单体 | ❌ 无 |
@@ -65,11 +65,14 @@ graph TB
         A[📊 销售数据] --> B[🧠 AI决策中心]
         B --> C[💰 智能定价]
         B --> D[📦 库存预测]
-        B --> E[💬 AI客服]
+        B --> E[💬 AI客服 + RAG]
         B --> F[📝 产品描述]
         B --> G[📈 智能报表]
         B --> H[🛒 智能采购]
         B --> I[⚠️ 库存预警]
+        B --> J[🤖 异常检测]
+        B --> K[🎯 智能选品]
+        B --> L[🔄 Feedback闭环]
     end
     
     C --> C1[竞品监控]
@@ -99,6 +102,18 @@ graph TB
     I --> I1[滞销检测]
     I --> I2[低库存预警]
     I --> I3[积压预警]
+
+    J --> J1[规则引擎]
+    J --> J2[AI评分]
+    J --> J3[风险分级]
+
+    K --> K1[多因子加权]
+    K --> K2[趋势预测]
+    K --> K3[风险评估]
+
+    L --> L1[采纳反馈]
+    L --> L2[权重自调优]
+    L --> L3[效果追踪]
 ```
 
 ### 🧠 智能定价 - 你的"定价专家"
@@ -275,7 +290,7 @@ OmniTradeERP/
 # 🔥 AI服务 (v1.5.0+)
 ├── erp-pricing-service/         # 💰 智能定价 (:8090)
 ├── erp-inventory-prediction-service/  # 📊 库存预测 (:8091)
-├── erp-ai-assistant-service/    # 💬 AI客服 (:8092)
+├── erp-ai-assistant-service/    # 💬 AI客服 + 🧠 RAG知识库 (:8092) - 向量检索+LLM多语言 7×24
 ├── erp-product-description-service/    # 📝 产品描述 (:8093)
 │
 # 🚀 智能商业服务 (v1.6.0+)
@@ -333,6 +348,45 @@ git checkout -b feature/your-awesome-feature
 ---
 
 ## 📝 更新日志
+
+### v1.9.0 (2026-07-11) 🔄 AI 选品推荐 Feedback 闭环
+
+- ✨ **RecommendFeedback + RecommendWeightSnapshot 实体**
+  - 反馈数据持久化（采纳/转化/复购/评分）
+  - 权重快照留痕，可回溯任意时刻的调优结果
+- ✨ **WeightTuner 自适应权重调优器**
+  - 皮尔逊相关系数：维度评分 vs 实际 accuracy 的相关性
+  - 梯度式更新 `LEARNING_RATE = 0.08`
+  - 钳制范围 `[0.05, 0.50]` + 归一化总和 = 1.0
+  - 样本 ≥ 5 自动触发，无样本走兜底默认权重
+- ✨ **FeedbackService + FeedbackController**（5 个 REST 端点）
+  - `POST /api/v1/feedback` 提交反馈
+  - 统计接口（采纳率、转化率、效果趋势）
+  - 权重快照查询与回滚
+- ✨ **ScoringEngine 支持动态权重切换**（DTO 注入，无需重启）
+- ✅ V2 migration：`recommend_feedback` + `recommend_weight_snapshot` 两张表
+- 🧪 **55/55 测试通过**（新增 33 个：FeedbackService 9 / WeightTuner 12 / Controller 12）
+
+### v1.8.0 (2026-06-25) 🧠 RAG 知识库生产级重构
+
+- ✨ **RAG 从内存玩具升级为生产级架构**
+  - JPA 持久化 `KnowledgeDocument`（title/content/embedding/active/时间戳）
+  - `EmbeddingService` SHA-256 确定性伪向量（384 维 L2 归一化）
+  - `VectorSearchService` 余弦相似度 + topK + 阈值过滤
+  - `RAGService` 入库自动算 embedding + retrieve + answer
+- ✨ **KnowledgeController**（6 个 REST 端点：增删改查 + 检索 + 统计）
+- ✨ **3 个 DTO**（RetrievalResult / RAGAnswer / KnowledgeStats）
+- 🧪 **48/48 测试通过**（新增 29 个：Embedding 8 / VectorSearch 10 / RAG 11）
+
+### v1.7.0 (2026-06-17) 🎯 AI 智能选品推荐服务
+
+- ✨ **erp-product-recommendation-service 微服务上线（:8139）**
+  - `ScoringEngine` 5 维度加权评分：需求 0.30 + 趋势 0.20 + 利润 0.20 + 竞争 0.15 + 质量 0.15
+  - `STRONG_BUY / BUY / HOLD / SKIP` 四级推荐
+  - 季节性加成：trend>0 + seasonality≥0.7 时趋势分 ×1.15
+  - 风险评估：高/中/低 三档 + 风险因素清单
+- ✨ **Controller**（推荐接口 + 反馈接收 + 统计查询）
+- 🧪 **22/22 测试通过**
 
 ### v1.6.0 (2026-05-29) 🚀 智能商业服务版本
 
