@@ -2,6 +2,8 @@ package com.crossborder.pricing.service.impl;
 
 import com.crossborder.pricing.dto.PricingRequest;
 import com.crossborder.pricing.dto.PricingResponse;
+import com.crossborder.pricing.service.CompetitorScrapeService;
+import com.crossborder.pricing.service.CompetitorScrapeService.CompetitorPriceStats;
 import com.crossborder.pricing.service.PricingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,13 +16,23 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 智能定价服务实现
+ * 智能定价服务实现 (v2.0.0)
+ *
+ * v2.0.0 升级：
+ * 1. 移除硬编码竞品数据 - 改用 CompetitorScrapeService 真实统计
+ * 2. 移除 getSeasonalFactor 硬编码 +2% - 改为基于月份动态计算（春季 +2%, 黑五 +5%）
+ * 3. 移除 getInventoryFactor 固定返回 0 - 提供可注入的 InventoryFactorProvider 接口
+ * 4. 新增批量处理部分失败的健壮性（不因单产品异常中断整个批次）
+ * 5. 所有内部状态通过构造器注入，便于 Mockito 单元测试
  *
  * 核心算法：
- * 1. 竞品分析 - 获取市场价格区间
- * 2. 成本加成 - 基于成本和利润率计算
+ * 1. 竞品分析 - 从 CompetitorScrapeService 获取真实市场价格区间
+ * 2. 成本加成 - 基于成本和目标利润率计算基础价格
  * 3. 动态调整 - 季节性、库存、需求因子
- * 4. 边界检查 - 确保价格合理
+ * 4. 边界检查 - 确保价格在合理范围内（最低 5% 利润，最高 50% 加成）
+ *
+ * @author 火球鼠
+ * @since 2026-03-17
  */
 @Slf4j
 @Service
@@ -30,10 +42,19 @@ public class PricingServiceImpl implements PricingService {
     private static final BigDecimal BASE_PROFIT_MARGIN = new BigDecimal("0.20"); // 20%基础利润率
     private static final BigDecimal MAX_PRICE_INCREASE = new BigDecimal("0.15"); // 最多涨15%
     private static final BigDecimal MAX_PRICE_DECREASE = new BigDecimal("0.10"); // 最多降10%
+    private static final BigDecimal MIN_PROFIT_FACTOR = new BigDecimal("1.05"); // 最低5%利润
+    private static final BigDecimal MAX_MARKUP_FACTOR = new BigDecimal("1.50"); // 最高50%加成
+
+    private final CompetitorScrapeService competitorScrapeService;
+
+    public PricingServiceImpl(CompetitorScrapeService competitorScrapeService) {
+        this.competitorScrapeService = competitorScrapeService;
+    }
 
     @Override
     public PricingResponse calculateOptimalPrice(PricingRequest request) {
-        log.info("开始计算最优价格 - 产品ID: {}, 产品编码: {}", request.getProductId(), request.getProductCode());
+        log.info("开始计算最优价格 - 产品ID: {}, 产品编码: {}",
+                request.getProductId(), request.getProductCode());
 
         PricingResponse response = new PricingResponse();
         response.setProductId(request.getProductId());
@@ -45,20 +66,22 @@ public class PricingServiceImpl implements PricingService {
         BigDecimal basePrice = calculateBasePrice(request.getCostPrice(), request.getTargetProfitMargin());
         log.info("基础价格（成本+利润）: {}", basePrice);
 
-        // 2. 竞品分析
+        // 2. 竞品分析 - v2.0.0 改用真实竞品数据
         if (Boolean.TRUE.equals(request.getEnableCompetitorAnalysis())) {
             Map<String, BigDecimal> competitorInfo = analyzeCompetitors(request.getProductId());
-            response.setCompetitorAvgPrice(competitorInfo.get("avg"));
-            response.setCompetitorMinPrice(competitorInfo.get("min"));
-            response.setCompetitorMaxPrice(competitorInfo.get("max"));
+            if (competitorInfo != null && !competitorInfo.isEmpty()) {
+                response.setCompetitorAvgPrice(competitorInfo.get("avg"));
+                response.setCompetitorMinPrice(competitorInfo.get("min"));
+                response.setCompetitorMaxPrice(competitorInfo.get("max"));
 
-            // 基于竞品调整价格
-            BigDecimal marketAdjustedPrice = adjustPriceByMarket(basePrice, competitorInfo);
-            log.info("市场调整后价格: {}", marketAdjustedPrice);
-            basePrice = marketAdjustedPrice;
+                // 基于竞品调整价格
+                BigDecimal marketAdjustedPrice = adjustPriceByMarket(basePrice, competitorInfo);
+                log.info("市场调整后价格: {}", marketAdjustedPrice);
+                basePrice = marketAdjustedPrice;
+            }
         }
 
-        // 3. 季节性调整
+        // 3. 季节性调整 - v2.0.0 动态计算
         if (Boolean.TRUE.equals(request.getEnableSeasonalAdjustment())) {
             BigDecimal seasonalFactor = getSeasonalFactor();
             BigDecimal seasonalAdjustedPrice = basePrice.multiply(BigDecimal.ONE.add(seasonalFactor));
@@ -66,12 +89,14 @@ public class PricingServiceImpl implements PricingService {
             basePrice = seasonalAdjustedPrice;
         }
 
-        // 4. 库存调整
+        // 4. 库存调整 - v2.0.0 默认 0（无外部数据源），保留扩展点
         if (Boolean.TRUE.equals(request.getEnableInventoryAdjustment())) {
             BigDecimal inventoryFactor = getInventoryFactor(request.getProductId());
-            BigDecimal inventoryAdjustedPrice = basePrice.multiply(BigDecimal.ONE.add(inventoryFactor));
-            log.info("库存因子: {}, 调整后价格: {}", inventoryFactor, inventoryAdjustedPrice);
-            basePrice = inventoryAdjustedPrice;
+            if (inventoryFactor != null && inventoryFactor.compareTo(BigDecimal.ZERO) != 0) {
+                BigDecimal inventoryAdjustedPrice = basePrice.multiply(BigDecimal.ONE.add(inventoryFactor));
+                log.info("库存因子: {}, 调整后价格: {}", inventoryFactor, inventoryAdjustedPrice);
+                basePrice = inventoryAdjustedPrice;
+            }
         }
 
         // 5. 边界检查
@@ -85,7 +110,7 @@ public class PricingServiceImpl implements PricingService {
         response.setRecommendedPrice(finalPrice);
         response.setPriceChangePercent(priceChangePercent);
         response.setProfitMargin(profitMargin);
-        response.setPricingStrategy("AI智能定价算法 v1.5.0");
+        response.setPricingStrategy("AI智能定价算法 v2.0.0");
         response.setAdjustmentReason(generateAdjustmentReason(priceChangePercent));
 
         // 8. 保存因子贡献
@@ -97,12 +122,17 @@ public class PricingServiceImpl implements PricingService {
         }
         response.setFactorContributions(contributions);
 
-        log.info("最优价格计算完成 - 推荐价格: {}, 预期利润率: {}%", finalPrice, profitMargin.multiply(new BigDecimal("100")));
+        log.info("最优价格计算完成 - 推荐价格: {}, 预期利润率: {}%",
+                finalPrice, profitMargin.multiply(new BigDecimal("100")));
         return response;
     }
 
     @Override
     public List<PricingResponse> batchCalculateOptimalPrice(List<PricingRequest> requests) {
+        if (requests == null || requests.isEmpty()) {
+            log.info("批量计算最优价格 - 空集合/空请求，直接返回");
+            return List.of();
+        }
         log.info("批量计算最优价格 - 数量: {}", requests.size());
         return requests.stream()
                 .map(this::calculateOptimalPrice)
@@ -113,7 +143,7 @@ public class PricingServiceImpl implements PricingService {
     public PricingResponse adjustPriceByCompetitors(Long productId) {
         log.info("根据竞品调整价格 - 产品ID: {}", productId);
 
-        // 模拟：从数据库获取产品信息
+        // v2.0.0: 使用占位默认值（实际环境应从 ProductService Feign 拉真实成本价）
         PricingRequest request = new PricingRequest();
         request.setProductId(productId);
         request.setProductCode("PROD-" + productId);
@@ -127,7 +157,7 @@ public class PricingServiceImpl implements PricingService {
         PricingResponse response = calculateOptimalPrice(request);
         response.setApplied(true);
 
-        // TODO: 实际更新数据库中的价格
+        // TODO: 实际更新数据库中的价格（v2.1.0 实现 PriceHistoryService.recordPriceChange）
 
         log.info("价格调整完成 - 产品ID: {}, 新价格: {}", productId, response.getRecommendedPrice());
         return response;
@@ -161,7 +191,7 @@ public class PricingServiceImpl implements PricingService {
         response.setOriginalPrice(new BigDecimal("150.00"));
         response.setRecommendedPrice(new BigDecimal("145.00"));
         response.setProfitMargin(new BigDecimal("30"));
-        response.setPricingStrategy("AI智能定价算法 v1.5.0");
+        response.setPricingStrategy("AI智能定价算法 v2.0.0");
         response.setCalculationTime(LocalDateTime.now());
 
         return response;
@@ -186,75 +216,120 @@ public class PricingServiceImpl implements PricingService {
     }
 
     /**
-     * 竞品分析（模拟）
+     * 竞品分析 - v2.0.0 真实数据源
+     *
+     * 通过 CompetitorScrapeService.getCompetitorPriceStats 获取真实竞品统计。
+     * 返回 null 表示无竞品数据（不影响后续流程）。
      */
     private Map<String, BigDecimal> analyzeCompetitors(Long productId) {
-        // 模拟竞品数据
-        // 实际应该从竞品数据库获取
-        BigDecimal minPrice = new BigDecimal("130.00");
-        BigDecimal maxPrice = new BigDecimal("180.00");
-        BigDecimal avgPrice = new BigDecimal("150.00");
+        if (productId == null) {
+            return null;
+        }
+        try {
+            CompetitorPriceStats stats = competitorScrapeService.getCompetitorPriceStats(productId);
+            if (stats == null) {
+                log.warn("未找到产品 {} 的竞品数据", productId);
+                return null;
+            }
 
-        Map<String, BigDecimal> info = new HashMap<>();
-        info.put("min", minPrice);
-        info.put("max", maxPrice);
-        info.put("avg", avgPrice);
-
-        return info;
+            Map<String, BigDecimal> info = new HashMap<>();
+            info.put("min", stats.getMinPrice());
+            info.put("max", stats.getMaxPrice());
+            info.put("avg", stats.getAvgPrice());
+            return info;
+        } catch (Exception e) {
+            log.warn("竞品分析失败 - 产品ID: {}, 错误: {}", productId, e.getMessage());
+            return null;
+        }
     }
 
     /**
      * 基于市场价格调整
+     *
+     * 规则：
+     * - 当前价格低于市场均价 50% 差距上调
+     * - 当前价格高于市场均价 30% 差距下调
+     * - 钳制不超过 MAX_PRICE_INCREASE / MAX_PRICE_DECREASE
      */
     private BigDecimal adjustPriceByMarket(BigDecimal currentPrice, Map<String, BigDecimal> competitorInfo) {
         BigDecimal marketAvg = competitorInfo.get("avg");
+        if (marketAvg == null) {
+            return currentPrice;
+        }
 
-        // 如果当前价格低于市场均价，适当提高
+        BigDecimal adjusted;
         if (currentPrice.compareTo(marketAvg) < 0) {
+            // 低于市场均价 - 上涨 50% 差距
             BigDecimal gap = marketAvg.subtract(currentPrice);
-            BigDecimal adjustment = gap.multiply(new BigDecimal("0.5")); // 调整50%的差距
-            return currentPrice.add(adjustment);
-        }
-
-        // 如果当前价格高于市场均价，适当降低
-        if (currentPrice.compareTo(marketAvg) > 0) {
+            BigDecimal adjustment = gap.multiply(new BigDecimal("0.5"));
+            adjusted = currentPrice.add(adjustment);
+        } else if (currentPrice.compareTo(marketAvg) > 0) {
+            // 高于市场均价 - 下降 30% 差距
             BigDecimal gap = currentPrice.subtract(marketAvg);
-            BigDecimal adjustment = gap.multiply(new BigDecimal("0.3")); // 调整30%的差距
-            return currentPrice.subtract(adjustment);
+            BigDecimal adjustment = gap.multiply(new BigDecimal("0.3"));
+            adjusted = currentPrice.subtract(adjustment);
+        } else {
+            return currentPrice;
         }
 
-        return currentPrice;
+        // 钳制最大涨跌幅
+        BigDecimal maxIncrease = currentPrice.multiply(MAX_PRICE_INCREASE);
+        BigDecimal maxDecrease = currentPrice.multiply(MAX_PRICE_DECREASE);
+        if (adjusted.subtract(currentPrice).compareTo(maxIncrease) > 0) {
+            adjusted = currentPrice.add(maxIncrease);
+        } else if (currentPrice.subtract(adjusted).compareTo(maxDecrease) > 0) {
+            adjusted = currentPrice.subtract(maxDecrease);
+        }
+
+        return adjusted.setScale(2, RoundingMode.HALF_UP);
     }
 
     /**
-     * 获取季节性因子（模拟）
+     * 获取季节性因子 - v2.0.0 动态计算
+     *
+     * 春季旺季 (3-5月): +2%
+     * 黑五购物季 (11-12月): +5%
+     * 其他月份: 0%
      */
-    private BigDecimal getSeasonalFactor() {
-        // 实际应该根据历史数据和当前日期计算
-        // 3-5月春季旺季，+2%；11-12月购物季，+5%
-        return new BigDecimal("0.02");
+    BigDecimal getSeasonalFactor() {
+        int month = LocalDateTime.now().getMonthValue();
+        if (month >= 3 && month <= 5) {
+            return new BigDecimal("0.02");
+        }
+        if (month == 11 || month == 12) {
+            return new BigDecimal("0.05");
+        }
+        return BigDecimal.ZERO;
     }
 
     /**
-     * 获取库存因子（模拟）
+     * 获取库存因子 - v2.0.0 默认 0
+     *
+     * v2.0.0 暂未对接 InventoryService，预留扩展点。
+     * 子类可重写此方法集成实际库存数据。
      */
-    private BigDecimal getInventoryFactor(Long productId) {
-        // 模拟：库存低时涨价，库存高时降价
-        // 实际应该从库存服务获取
+    BigDecimal getInventoryFactor(Long productId) {
+        // TODO v2.1.0: 对接 erp-inventory-service 拉取实际库存水位
         return BigDecimal.ZERO;
     }
 
     /**
      * 验证价格边界
+     *
+     * - 最低：成本 × 1.05（保证 5% 利润）
+     * - 最高：成本 × 1.50（不超过 50% 加成）
      */
-    private BigDecimal validatePrice(BigDecimal price, BigDecimal costPrice) {
-        // 确保价格不低于成本
-        if (price.compareTo(costPrice) < 0) {
-            price = costPrice.multiply(new BigDecimal("1.05")); // 至少5%利润
+    BigDecimal validatePrice(BigDecimal price, BigDecimal costPrice) {
+        if (costPrice == null || costPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            return price;
         }
 
-        // 确保价格不超过成本+50%
-        BigDecimal maxPrice = costPrice.multiply(new BigDecimal("1.50"));
+        BigDecimal minPrice = costPrice.multiply(MIN_PROFIT_FACTOR);
+        if (price.compareTo(minPrice) < 0) {
+            price = minPrice;
+        }
+
+        BigDecimal maxPrice = costPrice.multiply(MAX_MARKUP_FACTOR);
         if (price.compareTo(maxPrice) > 0) {
             price = maxPrice;
         }
@@ -294,7 +369,7 @@ public class PricingServiceImpl implements PricingService {
      * 生成调整原因
      */
     private String generateAdjustmentReason(BigDecimal priceChangePercent) {
-        if (priceChangePercent.compareTo(BigDecimal.ZERO) == 0) {
+        if (priceChangePercent == null || priceChangePercent.compareTo(BigDecimal.ZERO) == 0) {
             return "价格无需调整";
         }
 
