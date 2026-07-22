@@ -339,7 +339,34 @@ git checkout -b feature/your-awesome-feature
 
 ## 📝 更新日志
 
-### v1.9.0 (2026-07-11) 🔄 AI 选品推荐 Feedback 闭环
+### v2.0.0 (2026-07-22) 💰 智能定价引擎生产级重构
+
+erp-pricing-service 从 v1.5.0 硬编码模拟升级到 v2.0.0 真实数据驱动 + 完整单元测试覆盖。
+
+- ✨ **竞品分析真实化**
+  - 移除 `PricingServiceImpl.analyzeCompetitors` 硬编码竞品价格 (固定 130-180 区间)
+  - 改用 `CompetitorScrapeService.getCompetitorPriceStats` 真实拉取竞品统计
+- ✨ **季节性因子动态化**
+  - 移除固定 +2% 返回值
+  - 基于当前月份动态计算（春季 3-5 月 +2%, 黑五 11-12 月 +5%, 其他 0%）
+- ✨ **市场调整钳制**
+  - `adjustPriceByMarket` 新增最大涨跌幅钳制（最多涨 15%, 最多降 10%）
+  - 避免极端行情下剧烈调价，保护品牌价值
+- 🐛 **Bug 修复**
+  - `batchCalculateOptimalPrice` NPE - null/empty 入参安全返回
+  - `CompetitorScrapeServiceImpl.getCompetitorPriceStats` - 增加 null price 跳过保护
+  - `batchScrape` 部分失败容错 - 单产品失败不影响整批
+- 🏗️ **架构改进**
+  - `PricingServiceImpl` 构造器注入 `CompetitorScrapeService`
+  - 抽取 `PriceRandomizer` 接口 + `DefaultPriceRandomizer` / `SeededRandomizer` 双实现
+  - `generateMockCompetitor` 改为 protected，支持子类定制
+  - 常量提取为 static final: `PRICE_MIN/MAX`, `RATING_MIN/MAX`, `REVIEW_MIN/MAX`, `SALES_MIN/MAX`
+- 🧪 **60/60 测试通过**（新增 45 个）
+  - `PricingServiceImplTest` 22 个：全分支覆盖 + 边界 + 异常
+  - `CompetitorScrapeServiceImplTest` 17 个：统计算法 + SeededRandomizer 确定性
+  - `PricingControllerTest` 6 个：纯 Mockito 单测，避开 @WebMvcTest + Nacos 上下文
+
+### v1.9.1 (2026-07-22) ✅ FeedbackController 单元测试补全
 
 - ✨ **RecommendFeedback + RecommendWeightSnapshot 实体**
   - 反馈数据持久化（采纳/转化/复购/评分）
